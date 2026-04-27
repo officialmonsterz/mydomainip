@@ -1,0 +1,192 @@
+---
+
+## howtouse.txt
+
+```markdown
+═══════════════════════════════════════════════════════════════
+  DIP v3.2 - Domain IP Pentester — How To Use Guide
+═══════════════════════════════════════════════════════════════
+
+1. PREREQUISITES
+─────────────────
+Install dependencies:
+    pip install dnspython colorama pyfiglet pandas openpyxl
+
+Ensure external tools are installed and in $PATH:
+    sudo apt install nmap masscan golang-go openssl
+    go install github.com/OJ/gobuster/v3@latest
+    # Metasploit: https://www.metasploit.com/
+
+2. PREPARE YOUR INPUT
+──────────────────────
+Create a DRAKGRAB-format file containing domain entries like:
+    DOMAIN: example.com
+    DOMAIN: target.org
+    DOMAIN: somesite.net
+
+The tool also auto-discovers:
+    - HIGH_VALUE_TARGETS*.txt
+    - domains.txt
+    - zoneh_domains.txt
+
+3. RUN THE TOOL
+────────────────
+    python3 dip.py
+
+4. INTERACTIVE PROMPTS (What to expect)
+─────────────────────────────────────────
+
+STEP A: Input File
+───────────────────
+[>] DRAKGRAB file: 
+→ Press ENTER to use auto-discovered file, or type the path manually
+→ Example: /path/to/domains.txt
+
+STEP B: DNS Resolvers (Optional)
+──────────────────────────────────
+[>] resolvers.txt: 
+→ Path to a file with DNS resolver IPs (one per line)
+→ Example: /etc/resolv.conf or a custom list
+→ Press ENTER to skip (uses system default)
+
+STEP C: Thread Count
+─────────────────────
+[>] Threads (5-30) [12]: 
+→ Higher = faster but more network noise
+→ Default: 12
+→ Range: 5-30
+
+STEP D: Real-time Nmap
+───────────────────────
+[>] Real-time Nmap? (y/n) [y]: 
+→ y = Run nmap -sV on all GOLD IPs automatically
+→ n = Skip nmap, just produce target lists
+
+STEP E: Shodan API Key (Optional)
+──────────────────────────────────
+[>] Shodan API: 
+→ Enter your Shodan API key for host enrichment
+→ Press ENTER to skip
+→ Saved to config.json for future runs
+
+STEP F: Masscan (Optional)
+───────────────────────────
+[>] Use masscan for initial discovery? (y/n) [n]: 
+→ y = Run masscan at 10,000 pkts/sec on discovered IPs
+→ n = Skip (uses socket scanning only)
+→ NOTE: Requires root privileges for masscan
+
+5. WATCH THE OUTPUT
+────────────────────
+The tool displays real-time results:
+    🔥 GOLD  example.com|192.168.1.1|2083, 2087|50
+    💎 SILVER target.org|10.0.0.1|25, 80, 443|27
+    ⚡ BRONZE test.net|172.16.0.1|22, 80|16
+    ℹ️       low.org|10.1.1.1|80|6
+
+☁️ Cloud-tagged IPs appear as:
+    🔥 GOLD [CLOUD] example.com|ip|ports|score
+
+📋 Banners appear for Bronze+ targets:
+    📋 Banners: Port 22: SSH-2.0-OpenSSH_8.9p1 | Port 80: Apache/2.4.57
+
+6. OUTPUT FILES (After completion)
+───────────────────────────────────
+
+    📄 dip_targets.txt       — All targets (domain|ip|ports|score)
+    📄 ip_list.txt            — All unique IPs
+    📄 gold_ips.txt           — GOLD IPs only (100+ pts)
+    📄 DIP_Results.csv        — Full CSV export
+    📄 GOLD_TARGETS.xlsx      — Top 100 GOLD in Excel
+
+    📂 nmap_results/
+       ├── gold_summary.txt   — Parsed GOLD services (cPanel, SMTP, SSH, etc.)
+       ├── full_gold_scan.txt — Full Nmap port scan of all GOLD IPs
+       ├── ssl_certs/         — Raw SSL certs per IP
+       ├── ssl_emails.txt     — Emails harvested from certs
+       ├── ssl_domains.txt    — SANs/CNs harvested from certs
+       ├── vhosts/            — VHost enumeration per IP
+       └── msf_autocrack.log  — Metasploit login attempt results
+
+7. POST-EXPLOITATION COMMANDS (Printed at end)
+───────────────────────────────────────────────
+
+    # cPanel brute force (WHM port 2087):
+    hydra -L users.txt -P rockyou.txt gold_ips.txt cpanel -s 2087
+
+    # SMTP brute force:
+    hydra -L users.txt -P rockyou.txt gold_ips.txt smtp -s 25
+
+    # HTTP brute force:
+    medusa -h gold_ips.txt -u admin -P rockyou.txt -M http
+
+8. TROUBLESHOOTING
+───────────────────
+
+ISSUE: "No domains found"
+→ Check the input file format. Must contain "DOMAIN:" lines.
+→ Try: grep -i "DOMAIN:" yourfile.txt
+
+ISSUE: "gobuster not installed"
+→ Install: go install github.com/OJ/gobuster/v3@latest
+
+ISSUE: "masscan not installed"
+→ Install: sudo apt install masscan
+
+ISSUE: "pandas not installed"
+→ Install: pip install pandas openpyxl
+
+ISSUE: "msfconsole not found"
+→ Install Metasploit: curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod +x msfinstall && sudo ./msfinstall
+
+ISSUE: No GOLD IPs found
+→ The target network may have few open high-value ports.
+→ Try increasing thread count for faster coverage.
+→ Check if cloud detection is subtracting too many points.
+
+9. QUICK START (Minimal Example)
+──────────────────────────────────
+
+    echo "DOMAIN: example.com" > targets.txt
+    echo "DOMAIN: test.org" >> targets.txt
+    echo "DOMAIN: demo.net" >> targets.txt
+    
+    python3 dip.py
+    # When prompted, press ENTER for auto-detect or type targets.txt
+    # Press ENTER for no resolvers
+    # Type 12 for threads
+    # Type y for Nmap
+    # Press ENTER for no Shodan
+    # Type n for no masscan
+    
+    # Watch it run. Check gold_ips.txt and nmap_results/ when done.
+
+10. ADVANCED USAGE
+───────────────────
+
+WITH CUSTOM RESOLVERS:
+    1. Create resolvers.txt:
+        8.8.8.8
+        1.1.1.1
+        9.9.9.9
+    2. Run: python3 dip.py
+    3. Enter: resolvers.txt when prompted
+
+WITH MASSCAN (Root Required):
+    sudo python3 dip.py
+    → Answer y when asked about masscan
+
+WITH SHODAN ENRICHMENT:
+    1. Get API key from https://account.shodan.io
+    2. Run: python3 dip.py
+    3. Paste API key when prompted
+    4. Key saved to config.json for future runs
+
+RE-RUNNING WITHOUT RESCAN:
+    All outputs persist. To re-run Nmap on existing gold_ips.txt:
+        nmap -iL gold_ips.txt -p- -sV --open -oN nmap_results/full_gold_scan.txt
+    Or just re-run the script — it overwrites output files.
+
+═══════════════════════════════════════════════════════════════
+  Happy hunting. Authorized targets only.
+═══════════════════════════════════════════════════════════════
