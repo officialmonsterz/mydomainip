@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # DIP v3.2 - Domain IP Pentester + Real-time Nmap (Organized Output + Enhanced Features)
-# Author: github.com/officialmonsterz
+# Author: t.me/officialmonsterz
 # Purpose: DRAKGRAB → Domain → IP → cPanel/SMTP → INSTANT Nmap Analysis
 # Integrations: SSL Harvest, Banner Grab, VHost Enum, Auto-Exploit, Cloud Detect, Masscan, Excel Export
 
