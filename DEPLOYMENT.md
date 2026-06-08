@@ -1,10 +1,15 @@
+```markdown
 # 🛠️ DIP v3.2 - Deployment Guide
 
 ![DIP Logo](https://via.placeholder.com/1200x300/0A0A0A/00FF9D?text=DIP+v3.2+-+Domain+IP+Pentester)  
+
 **Production-Grade Domain → IP → Gold Target Pipeline**  
 *Real-time Nmap • cPanel/SMTP Hunting • 2026 Optimized*
 
 ---
+
+**Developed by [officialmonsterz](https://github.com/officialmonsterz)**  
+**Telegram:** [t.me/officialmonsterz](https://t.me/officialmonsterz)  
 
 > **DIP v3.2** transforms raw DRAKGRAB exports into **actionable GOLD targets** in minutes.  
 > This guide covers **full deployment** on Kali Linux / Parrot OS / Ubuntu — from zero to fully armed pentest workstation.
@@ -22,6 +27,7 @@
 - [Advanced Deployment Options](#-advanced-deployment-options)
 - [Troubleshooting](#-troubleshooting)
 - [Security & Legal Notes](#-security--legal-notes)
+- [Credits](#-credits)
 - [References](#-references)
 
 ---
@@ -64,94 +70,93 @@ chmod +x dip.py
 
 # 5. Run!
 python3 dip.py
+```
 
-Done. DIP will auto-detect your DRAKGRAB file and guide you through the rest. Detailed InstallationStep 1: Clone & Preparebash
+**Done.** DIP will auto-detect your DRAKGRAB file and guide you through the rest.
 
+---
+
+## 🔧 Detailed Installation
+
+### Step 1: Clone & Prepare
+```bash
 git clone https://github.com/officialmonsterz/DIP.git
 cd DIP
+```
 
-Step 2: Python Environment (Optional but Recommended)bash
-
+### Step 2: Python Environment (Optional but Recommended)
+```bash
 # Create virtual environment
 python3 -m venv dip-env
 source dip-env/bin/activate
 
 # Install requirements
-pip install -r requirements.txt   # (create this file if you want)
+pip install -r requirements.txt
+```
 
-requirements.txt (create this file):txt
-
+**requirements.txt** (create this file in the root):
+```txt
 colorama
 pyfiglet
 dnspython
 pandas
 openpyxl
+```
 
-Step 3: Install Pentesting Toolsbash
-
+### Step 3: Install Pentesting Tools
+```bash
 sudo apt install -y nmap masscan gobuster
 sudo apt install -y metasploit-framework   # ~2 GB — optional for auto-exploit
+```
 
-Step 4: Wordlist Setup (for vHost Enum)DIP auto-detects these common paths:/usr/share/wordlists/dirb/common.txt
-/usr/share/seclists/Discovery/Web-Content/common.txt
+### Step 4: Wordlist Setup (for vHost Enum)
+DIP auto-detects these common paths:
+- `/usr/share/wordlists/dirb/common.txt`
+- `/usr/share/seclists/Discovery/Web-Content/common.txt`
 
-Missing wordlist?  bash
-
+**Missing wordlist?**
+```bash
 sudo apt install seclists
+```
 
- Tool DependenciesTool
-Purpose
-Version Tested
-Required?
-Install Command
-nmap
-Real-time gold scanning
-7.95+
-Yes
-apt install nmap
-masscan
-Ultra-fast port discovery
-1.3+
-Optional
-apt install masscan
-gobuster
-Virtual Host Enumeration
-3.5+
-Yes
-apt install gobuster
-metasploit
-Auto cPanel exploit check
-6.4+
-Optional
-apt install metasploit-framework
-openssl
-SSL certificate harvesting
-3.x
-Yes
-apt install openssl
-Shodan CLI
-Host intelligence
-Latest
-Optional
-pip install shodan
+---
 
- Configuration1. config.json (Auto-created)json
+## 🛠️ Tool Dependencies
 
+| Tool              | Purpose                          | Version Tested | Required? | Install Command |
+|-------------------|----------------------------------|----------------|-----------|-----------------|
+| **nmap**          | Real-time gold scanning          | 7.95+          | Yes       | `apt install nmap` |
+| **masscan**       | Ultra-fast port discovery        | 1.3+           | Optional  | `apt install masscan` |
+| **gobuster**      | Virtual Host Enumeration         | 3.5+           | Yes       | `apt install gobuster` |
+| **metasploit**    | Auto cPanel exploit check        | 6.4+           | Optional  | `apt install metasploit-framework` |
+| **openssl**       | SSL certificate harvesting       | 3.x            | Yes       | `apt install openssl` |
+| **Shodan CLI**    | Host intelligence                | Latest         | Optional  | `pip install shodan` |
+
+---
+
+## ⚙️ Configuration
+
+### 1. `config.json` (Auto-created)
+```json
 {
   "shodan_api": "YOUR_SHODAN_API_KEY_HERE"
 }
+```
 
-2. resolvers.txt (Highly Recommended)Create this file with fast public resolvers:txt
-
+### 2. `resolvers.txt` (Highly Recommended)
+Create this file with fast public resolvers:
+```txt
 1.1.1.1
 8.8.8.8
 9.9.9.9
+```
 
-3. Input FilesPlace your DRAKGRAB export as HIGH_VALUE_TARGETS_*.txt or domains.txt
-DIP auto-detects it
+### 3. Input Files
+- Place your DRAKGRAB export as `HIGH_VALUE_TARGETS_*.txt` or `domains.txt`
+- DIP auto-detects it
 
-4. Output Directory Structure (Auto-created)
-
+### 4. Output Directory Structure (Auto-created)
+```
 DIP/
 ├── dip_targets.txt
 ├── gold_ips.txt
@@ -162,9 +167,13 @@ DIP/
 │   └── msf_autocrack.log
 ├── DIP_Results.csv
 └── GOLD_TARGETS.xlsx
+```
 
- Workflow Architecturemermaid
+---
 
+## 🔄 Workflow Architecture
+
+```mermaid
 graph TD
     A[DRAKGRAB File] --> B[Domain Extraction + Cleaning]
     B --> C[Multi-threaded DNS Resolution]
@@ -181,68 +190,106 @@ graph TD
     J & K & L --> N[Auto-Export to Excel + CSV]
     M --> O[Metasploit cPanel Auto-Check]
     N --> P[Final Pentest-Ready Report]
+```
 
-Key Optimizations:Gold IPs scanned first (priority queuing)
-Only 100+ point targets receive heavy tools
-Cloud IPs automatically downgraded
+**Key Optimizations:**
+- Gold IPs scanned **first** (priority queuing)
+- Only 100+ point targets receive heavy tools
+- Cloud IPs automatically downgraded
 
- Post-Deployment VerificationRun this one-liner after first scan:bash
+---
 
+## ✅ Post-Deployment Verification
+
+Run this one-liner after first scan:
+```bash
 ls -la nmap_results/ && echo "✅ GOLD targets:" && wc -l gold_ips.txt
+```
 
-Expected output:gold_summary.txt with CRACK tags
-GOLD_TARGETS.xlsx ready for handover
-Console showing live banners and priorities
+Expected output:
+- `gold_summary.txt` with CRACK tags
+- `GOLD_TARGETS.xlsx` ready for handover
+- Console showing live banners and priorities
 
- Advanced Deployment OptionsDocker (Coming Soon — Community Request)dockerfile
+---
 
+## 🚀 Advanced Deployment Options
+
+### Docker (Coming Soon — Community Request)
+```dockerfile
 # Dockerfile (add this if you want)
 FROM kalilinux/kali-rolling
 # ... (full container coming in v3.3)
+```
 
-Run as Background Service (Screen/Tmux)bash
-
+### Run as Background Service (Screen/Tmux)
+```bash
 screen -S dip-scan
 python3 dip.py
 # Detach: Ctrl+A D
+```
 
-CI/CD Integration (GitHub Actions)Add .github/workflows/scan.yml for automated daily runs (advanced users only). TroubleshootingIssue
-Cause
-Fix
-gobuster not found
-Missing binary
-sudo apt install gobuster
-Masscan timeout
-Rate too high
-Lower --rate=5000 in code
-No gold targets
-Low-score input
-Use better DRAKGRAB export
-Metasploit fails
-Not installed
-apt install metasploit-framework
-Slow DNS
-Bad resolvers
-Use resolvers.txt with 1.1.1.1
-Permission denied
-Output files
-sudo chown $USER .
+### CI/CD Integration (GitHub Actions)
+Add `.github/workflows/scan.yml` for automated daily runs (advanced users only).
 
-Still stuck? Open an issue with dip.log (add logging if needed). Security & Legal NotesAuthorized Use Only — This tool is for legal penetration testing and bug bounty programs.
-Never scan systems without explicit written permission.
-Shodan API usage is rate-limited — use responsibly.
-All output files are local-only — no data is sent to third parties.
+---
 
- ReferencesNmap Official Documentation
-Masscan GitHub
-Gobuster Documentation
-Metasploit Framework
-Shodan Developer API
-DRAKGRAB Format Reference (internal)
-Python DNS Resolver Best Practices
+## ❗ Troubleshooting
 
- Deployment Complete!You are now running one of the most advanced domain-to-gold pipelines available in 2026.Next Step:
-Run python3 dip.py and watch the GOLD roll in.Made with  for the real hunters.
-Author: officialmonsterz
-Version: 3.2 (June 2026)
+| Issue                          | Cause                          | Fix |
+|--------------------------------|--------------------------------|-----|
+| `gobuster not found`           | Missing binary                 | `sudo apt install gobuster` |
+| Masscan timeout                | Rate too high                  | Lower `--rate=5000` in code |
+| No gold targets                | Low-score input                | Use better DRAKGRAB export |
+| Metasploit fails               | Not installed                  | `apt install metasploit-framework` |
+| Slow DNS                       | Bad resolvers                  | Use `resolvers.txt` with 1.1.1.1 |
+| Permission denied              | Output files                   | `sudo chown $USER .` |
 
+**Still stuck?** Open an issue on [GitHub](https://github.com/officialmonsterz/DIP) with your error.
+
+---
+
+## 🔒 Security & Legal Notes
+
+- **Authorized Use Only** — This tool is for legal penetration testing and bug bounty programs.
+- Never scan systems without explicit written permission.
+- Shodan API usage is rate-limited — use responsibly.
+- All output files are **local-only** — no data is sent to third parties.
+
+---
+
+## 👏 Credits
+
+**Creator & Maintainer:**  
+**[officialmonsterz](https://github.com/officialmonsterz)**  
+**Telegram:** [t.me/officialmonsterz](https://t.me/officialmonsterz)  
+
+This project is proudly developed and maintained by **officialmonsterz**.  
+All rights and credits belong to the original author.
+
+---
+
+## 📚 References
+
+- [Nmap Official Documentation](https://nmap.org/book/man.html)
+- [Masscan GitHub](https://github.com/robertdavidgraham/masscan)
+- [Gobuster Documentation](https://github.com/OJ/gobuster)
+- [Metasploit Framework](https://www.metasploit.com/)
+- [Shodan Developer API](https://developer.shodan.io/)
+- [Python DNS Resolver Best Practices](https://dnspython.readthedocs.io/)
+
+---
+
+**🎉 Deployment Complete!**
+
+You are now running one of the most advanced domain-to-gold pipelines available in 2026.
+
+**Next Step:**  
+Run `python3 dip.py` and watch the **GOLD** roll in.
+
+---
+
+*Made with 🔥 for the real hunters by [officialmonsterz](https://github.com/officialmonsterz) — [t.me/officialmonsterz](https://t.me/officialmonsterz)*
+
+**Star the repo** if DIP helped you find your next big target! ⭐
+```
